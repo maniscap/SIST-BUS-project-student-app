@@ -4,6 +4,9 @@ import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as html_parser;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Added for local caching
+import 'package:lottie/lottie.dart';
+import 'dart:convert'; // Added for JSON encoding
 import 'dart:ui';
 
 class QRScannerScreen extends StatefulWidget {
@@ -16,9 +19,10 @@ class QRScannerScreen extends StatefulWidget {
 class _QRScannerScreenState extends State<QRScannerScreen> {
   final MobileScannerController _scannerController = MobileScannerController(
     formats: const [BarcodeFormat.qrCode], // Forces it to only look for QR Codes, making it blazing fast
+    detectionSpeed: DetectionSpeed.noDuplicates, // Frees up CPU so the camera can auto-focus faster
   );
   bool _isProcessing = false;
-  String _statusMessage = 'Point camera at your College ID Card';
+  String _statusMessage = 'Scan your College ID Card';
 
   @override
   void dispose() {
@@ -32,17 +36,19 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
     final List<Barcode> barcodes = capture.barcodes;
     if (barcodes.isEmpty || barcodes.first.rawValue == null) return;
 
+    // Immediately lock processing to prevent spamming multiple dialogs
+    setState(() => _isProcessing = true);
+
     final String url = barcodes.first.rawValue!;
     
     // Validate that it's a Sathyabama ID card URL (but white-labeled to the user)
     if (!url.contains('idverify.sathyabama.ac.in')) {
-      _scannerController.stop(); // Pause the camera so it doesn't spam errors
-      _showErrorDialog('Invalid QR Code! Please scan only your College ID Card.');
+      _scannerController.stop(); // Pause the camera
+      _showErrorDialog('Invalid QR Code!\nPlease scan only your College ID Card.');
       return;
     }
 
     setState(() {
-      _isProcessing = true;
       _statusMessage = 'Extracting Student Data...';
     });
 
@@ -92,6 +98,9 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
           password: password,
         );
         
+        // Save to cache so Home Screen loads instantly
+        await _saveToSharedPreferences(studentData, role);
+        
         // If successful, they already have an account!
         if (mounted) {
           _showSuccessDialog('Account already exists!\nLogged in successfully.');
@@ -110,6 +119,9 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
           String collectionName = role == 'student' ? 'students' : 'staff';
           await FirebaseFirestore.instance.collection(collectionName).doc(userCredential.user!.uid).set(studentData);
 
+          // Save to cache so Home Screen loads instantly
+          await _saveToSharedPreferences(studentData, role);
+
           if (mounted) {
             _showSuccessDialog('Account Created Successfully!');
           }
@@ -122,7 +134,14 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
     }
   }
 
-  Future<Map<String, String>?> _scrapeStudentData(String url) async {
+  Future<void> _saveToSharedPreferences(Map<String, dynamic> data, String role) async {
+    final prefs = await SharedPreferences.getInstance();
+    // Dynamically save ALL fields into a single JSON string!
+    await prefs.setString('userData', jsonEncode(data));
+    await prefs.setString('role', role);
+  }
+
+  Future<Map<String, dynamic>?> _scrapeStudentData(String url) async {
     try {
       // Use a standard mobile User-Agent to prevent getting blocked
       final response = await http.get(Uri.parse(url), headers: {
@@ -134,7 +153,8 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
       final document = html_parser.parse(response.body);
       final rows = document.querySelectorAll('tr');
 
-      Map<String, String> data = {};
+      Map<String, dynamic> data = {};
+      List<String> orderedKeys = [];
       
       for (var row in rows) {
         final cells = row.querySelectorAll('td');
@@ -143,9 +163,12 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
           final value = cells[2].text.trim();
           if (key.isNotEmpty && value.isNotEmpty) {
             data[key] = value;
+            orderedKeys.add(key);
           }
         }
       }
+
+      data['orderedKeys'] = orderedKeys; // <--- The magic array that guarantees ordering!
 
       // Try to extract the photo URL
       final imgTags = document.querySelectorAll('img');
@@ -163,53 +186,230 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
   }
 
   void _showErrorDialog(String message) {
-    setState(() => _isProcessing = false);
-    _scannerController.start(); // Restart scanner
-    
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Scan Failed'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Try Again'),
+      barrierDismissible: false,
+      barrierColor: Colors.black.withOpacity(0.5),
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+            child: Container(
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.7),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 30, spreadRadius: 10),
+                ]
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.warning_amber_rounded, color: Colors.orangeAccent, size: 70),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'INVALID ID CARD',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    message,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.white70, fontSize: 15, height: 1.4),
+                  ),
+                  const SizedBox(height: 32),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      minimumSize: const Size(double.infinity, 54),
+                    ),
+                    onPressed: () {
+                      Navigator.of(ctx).pop(); // This safely triggers the reset logic below
+                    },
+                    child: const Text('TRY AGAIN', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ],
+        ),
       ),
-    );
+    ).then((_) {
+      // GUARANTEE: No matter how the dialog closes (button click or hardware Back button),
+      // we ALWAYS restart the camera and unlock the screen.
+      if (mounted) {
+        _scannerController.start();
+        setState(() {
+          _isProcessing = false;
+          _statusMessage = 'Scan your College ID Card';
+        });
+      }
+    });
   }
 
   void _showSuccessDialog(String message) {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
+      barrierColor: Colors.black.withOpacity(0.5),
+      builder: (ctx) => Scaffold(
+        backgroundColor: Colors.transparent, // Let the background show!
+        body: Stack(
           children: [
-            const Icon(Icons.check_circle, color: Colors.green, size: 80),
-            const SizedBox(height: 16),
-            Text(
-              message,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                minimumSize: const Size(double.infinity, 50),
+            // Background Image
+            Positioned.fill(
+              child: Image.asset(
+                'assets/images/ADMIN - 2.jpg',
+                fit: BoxFit.cover,
+                gaplessPlayback: true,
               ),
-              onPressed: () {
-                Navigator.of(ctx).pop(); // Close dialog
-                Navigator.of(context).pop(); // Go back to login
-              },
-              child: const Text('Continue to Login'),
+            ),
+            // Blur over the image to make the card pop
+            Positioned.fill(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                child: Container(color: Colors.black.withOpacity(0.3)),
+              ),
+            ),
+            // Center Single Glass Card
+            SafeArea(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(40), // Apple pill-style rounding
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0), // Low blur, highly transparent acrylic feel
+                      child: Container(
+                        padding: const EdgeInsets.all(32),
+                        decoration: BoxDecoration(
+                          // True "Liquid Glass" Volumetric Bevel Gradient!
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Colors.white.withOpacity(0.7), // Intense top-left specular glare
+                              Colors.white.withOpacity(0.0), // Completely clear center
+                              Colors.white.withOpacity(0.0), // Completely clear center
+                              Colors.white.withOpacity(0.4), // Intense bottom-right refractive glare
+                            ],
+                            stops: const [0.0, 0.15, 0.85, 1.0], // Pushed strictly to the edges to simulate 3D thickness!
+                          ),
+                          borderRadius: BorderRadius.circular(40),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.6), // Bright sharp outer rim
+                            width: 2.0,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.15), // Elegant drop shadow
+                              blurRadius: 40,
+                              offset: const Offset(0, 10),
+                              spreadRadius: 0,
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Custom Animated Tick
+                            const _AnimatedSuccessTick(),
+                            const SizedBox(height: 32),
+                            Text(
+                              message,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.white, // White text for dark image
+                                fontSize: 22,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 1.0,
+                                height: 1.4,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            const Text(
+                              '"Travel smarter with SISTCAP"',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 16,
+                                fontStyle: FontStyle.italic,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+                            // Premium Apple Liquid Glass Continue Button
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.of(ctx).pop(); // Close dialog
+                                // Boom! Take them straight to the Home Screen!
+                                Navigator.of(context).pushReplacementNamed('/home'); 
+                              },
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(24),
+                                child: BackdropFilter(
+                                  filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                                  child: Container(
+                                    height: 56,
+                                    width: double.infinity,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      // Volumetric Button Gradient
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        colors: [
+                                          Colors.white.withOpacity(0.8), // Very bright edge
+                                          Colors.white.withOpacity(0.05), // Slightly tinted center
+                                          Colors.white.withOpacity(0.05),
+                                          Colors.white.withOpacity(0.5),
+                                        ],
+                                        stops: const [0.0, 0.2, 0.8, 1.0],
+                                      ),
+                                      borderRadius: BorderRadius.circular(24),
+                                      border: Border.all(color: Colors.white.withOpacity(0.8), width: 2.0), // Sharp bright rim
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.15), 
+                                          blurRadius: 20, 
+                                          offset: const Offset(0, 5),
+                                          spreadRadius: 0,
+                                        ),
+                                      ],
+                                    ),
+                                    child: const Text(
+                                      'CONTINUE', 
+                                      style: TextStyle(
+                                        color: Colors.white, 
+                                        fontSize: 16, 
+                                        fontWeight: FontWeight.w900, 
+                                        letterSpacing: 2.0
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -221,12 +421,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: const Text('Scan ID Card'),
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
+      extendBodyBehindAppBar: true,
       body: Stack(
         children: [
           // The Camera Scanner
@@ -242,57 +437,103 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
             ),
           ),
 
+          // Floating Glass Back Button (since we removed the AppBar)
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 20,
+            left: 20,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(30),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.4),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ),
+              ),
+            ),
+          ),
+
           // Loading State / Status Message
           if (_isProcessing)
             Positioned.fill(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                child: Container(
-                  color: Colors.black.withOpacity(0.3),
-                  child: Center(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 32),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: const [
-                          BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
-                        ],
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const CircularProgressIndicator(color: Colors.blueAccent),
-                          const SizedBox(height: 20),
-                          Text(
-                            _statusMessage,
-                            style: const TextStyle(color: Colors.black87, fontSize: 16, fontWeight: FontWeight.w600),
-                            textAlign: TextAlign.center,
+              child: Container(
+                color: Colors.white, // Fully solid white background per your exact request!
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Custom Lottie Bus Animation
+                      RepaintBoundary(
+                        child: SizedBox(
+                          height: 150,
+                          width: 150,
+                          child: Lottie.asset(
+                            'assets/images/bus.lottie',
+                            fit: BoxFit.contain,
+                            repeat: true, // Loop indefinitely while processing
                           ),
-                        ],
+                        ),
                       ),
-                    ),
+                      const SizedBox(height: 32),
+                      Text(
+                        _statusMessage,
+                        style: const TextStyle(
+                          color: Colors.black87, // Deep dark text for contrast on solid white
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.5,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
             
-          // Bottom instruction text
+          // Floating Apple Liquid Glass Instruction Badge
           if (!_isProcessing)
             Positioned(
-              bottom: 40,
-              left: 20,
-              right: 20,
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                decoration: BoxDecoration(
-                  color: Colors.black87,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  _statusMessage,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+              bottom: 80,
+              left: 30,
+              right: 30,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(40),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 20.0, sigmaY: 20.0), // Liquid glass blur
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16), // Smaller padding
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15), // Apple frosted white
+                      borderRadius: BorderRadius.circular(40),
+                      border: Border.all(color: Colors.white.withOpacity(0.4), width: 1.5),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min, // Hug the content tightly
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.qr_code_scanner, color: Colors.white, size: 18), // Slightly smaller icon
+                        const SizedBox(width: 8), // Tighter spacing
+                        Text( // Removed Flexible to prevent aggressive wrapping
+                          _statusMessage,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13, // Slightly smaller font to guarantee single line
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             )
@@ -312,7 +553,7 @@ class _ScannerOverlayPainter extends CustomPainter {
 
     final scanAreaSize = size.width * 0.7;
     final scanArea = Rect.fromCenter(
-      center: Offset(size.width / 2, size.height / 2.5),
+      center: Offset(size.width / 2, size.height / 2), // Perfectly centered vertically
       width: scanAreaSize,
       height: scanAreaSize,
     );
@@ -353,3 +594,54 @@ class _ScannerOverlayPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter old) => false;
 }
+
+// Custom Animated Green Tick for the Success Screen
+class _AnimatedSuccessTick extends StatefulWidget {
+  const _AnimatedSuccessTick();
+
+  @override
+  State<_AnimatedSuccessTick> createState() => _AnimatedSuccessTickState();
+}
+
+class _AnimatedSuccessTickState extends State<_AnimatedSuccessTick> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this, 
+      duration: const Duration(milliseconds: 800),
+    );
+    // Elastic out gives it that premium Apple-style "pop and bounce" effect
+    _scaleAnimation = CurvedAnimation(parent: _controller, curve: Curves.elasticOut);
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.greenAccent.withOpacity(0.2),
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(
+          Icons.check_circle_rounded, 
+          color: Colors.green, 
+          size: 80, // Perfectly balanced size
+        ),
+      ),
+    );
+  }
+}
+

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Added for auto-login
 import 'dart:async';
 import 'login_screen.dart';
 
@@ -19,7 +20,24 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     _controller = AnimationController(vsync: this);
     
     // Hard cutoff at exactly 3.5 seconds to make it lightning fast
-    Future.delayed(const Duration(milliseconds: 3500), _navigateToLogin);
+    Future.delayed(const Duration(milliseconds: 3500), () {
+      if (mounted) {
+        // Auto-Login Check!
+        if (FirebaseAuth.instance.currentUser != null) {
+          Navigator.of(context).pushReplacementNamed('/home');
+        } else {
+          Navigator.of(context).pushReplacementNamed('/login');
+        }
+      }
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Precache the exact original image so it shares the exact same memory footprint
+    // as the LoginScreen, guaranteeing it doesn't decode twice and blink!
+    precacheImage(const AssetImage('assets/images/ADMIN - 2.jpg'), context);
   }
 
   @override
