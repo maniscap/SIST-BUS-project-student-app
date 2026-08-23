@@ -196,7 +196,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(24),
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
             child: Container(
               padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
@@ -204,7 +204,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 30, spreadRadius: 10),
+                  BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 10, spreadRadius: 10),
                 ]
               ),
               child: Column(
@@ -316,7 +316,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withOpacity(0.15), // Elegant drop shadow
-                              blurRadius: 40,
+                              blurRadius: 15,
                               offset: const Offset(0, 10),
                               spreadRadius: 0,
                             ),
@@ -384,7 +384,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                                       boxShadow: [
                                         BoxShadow(
                                           color: Colors.black.withOpacity(0.15), 
-                                          blurRadius: 20, 
+                                          blurRadius: 10, 
                                           offset: const Offset(0, 5),
                                           spreadRadius: 0,
                                         ),
@@ -507,7 +507,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(40),
                 child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 20.0, sigmaY: 20.0), // Liquid glass blur
+                  filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0), // Optimized for 60fps
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16), // Smaller padding
                     decoration: BoxDecoration(

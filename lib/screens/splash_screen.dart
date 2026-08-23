@@ -46,18 +46,6 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     super.dispose();
   }
 
-  void _navigateToLogin() {
-    if (mounted) {
-      // Instantly snaps to the pre-loaded login screen with zero delay/fade
-      Navigator.of(context).pushReplacement(
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const LoginScreen(),
-          transitionDuration: Duration.zero,
-          reverseTransitionDuration: Duration.zero,
-        ),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {

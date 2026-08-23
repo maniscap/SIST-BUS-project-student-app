@@ -29,7 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(24),
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
@@ -179,7 +179,7 @@ class _LoginScreenState extends State<LoginScreen> {
           // Apple Glass requires a razor sharp, vibrant background behind it to create the 3D depth effect!
           Positioned.fill(
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0), // Decreased blur so the image is incredibly sharp!
+              filter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5), // Very slight blur as requested
               child: Container(
                 color: Colors.black.withOpacity(0.15), // Very slight tint just for contrast
               ),
@@ -194,7 +194,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(40),
                   child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0), // Low blur, highly transparent acrylic feel
+                    filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0), // Lower blur for more transparency
                     child: Container(
                       padding: const EdgeInsets.all(32.0),
                       decoration: BoxDecoration(
@@ -203,10 +203,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            Colors.white.withOpacity(0.7), // Intense top-left specular glare
+                            Colors.white.withOpacity(0.3), // More transparent top glare
                             Colors.white.withOpacity(0.0), // Completely clear center
                             Colors.white.withOpacity(0.0), // Completely clear center
-                            Colors.white.withOpacity(0.4), // Intense bottom-right refractive glare
+                            Colors.white.withOpacity(0.1), // More transparent bottom glare
                           ],
                           stops: const [0.0, 0.15, 0.85, 1.0], // Pushed strictly to the edges to simulate 3D thickness!
                         ),
@@ -218,7 +218,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.15), // Elegant drop shadow
-                            blurRadius: 40,
+                            blurRadius: 20,
                             offset: const Offset(0, 10),
                             spreadRadius: 0,
                           ),
