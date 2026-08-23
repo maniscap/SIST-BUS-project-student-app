@@ -174,20 +174,8 @@ SIST-BUS-project-student-app/
 
 ---
 
-<div align="center">
-
-
-
-<sub>Engineered with precision for student transport safety. SISTCAP Engineering Suite &copy; 2026.</sub>
-
-</div>
-
 ---
 
 <div align="center">
-  <img src="./assets/footer_aurora_clean.gif" width="100%" alt="Aesthetic Horizon Aurora" />
-  <br/>
-  <p align="center">
-    <sub>Engineered for seamless offline-first student commuter navigation. SISTCAP Mobile © 2026 Mani.</sub>
-  </p>
+  <sub>Offline-first student commuter radar & digital pass system. MIT Licensed.</sub>
 </div>
