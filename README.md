@@ -31,13 +31,13 @@
 
 </div>
 
-## ??? Overview
+## Overview
 
 **SISTCAP Student Bus App** is a cross-platform Flutter mobile application designed for students and parents. It bridges the gap between campus transport fleets and commuters by providing **real-time sub-second bus GPS radar tracking**, **dynamic glowing vehicle heading markers**, **digital QR boarding passes**, and **offline map tile caching**.
 
 ---
 
-## ??? Mobile System Architecture
+## Mobile System Architecture
 
 ```mermaid
 flowchart TD
@@ -46,22 +46,22 @@ flowchart TD
     classDef map fill:#042f2e,stroke:#10b981,stroke-width:2px,color:#fff;
     classDef scan fill:#450a0a,stroke:#ef4444,stroke-width:2px,color:#fff;
 
-    subgraph Commuter["?? Student / Parent Mobile App (Flutter)"]
-        Splash["?? Animated Splash Screen"]:::flutter
-        Auth["?? Student & Parent Login"]:::flutter
-        LiveRadar["??? Live Bus Radar & Route Map"]:::map
-        BusMarker["? Dynamic 3D Glowing Bus Marker"]:::map
-        QRScanner["??? Digital QR Pass Scanner"]:::scan
-        Profile["?? Student Profile & Pass Details"]:::flutter
+    subgraph Commuter["Student / Parent Mobile App (Flutter)"]
+        Splash["Animated Splash Screen"]:::flutter
+        Auth["Student & Parent Login"]:::flutter
+        LiveRadar["Live Bus Radar & Route Map"]:::map
+        BusMarker["Dynamic 3D Glowing Bus Marker"]:::map
+        QRScanner["Digital QR Pass Scanner"]:::scan
+        Profile["Student Profile & Pass Details"]:::flutter
     end
 
-    subgraph FirebaseCloud["?? Cloud Backend Services"]
+    subgraph FirebaseCloud["Cloud Backend Services"]
         FirebaseAuth["Firebase Authentication"]:::fb
         Firestore["Cloud Firestore (Routes & Halts)"]:::fb
-        RealtimeDB["? Realtime GPS Telemetry Stream"]:::fb
+        RealtimeDB["Realtime GPS Telemetry Stream"]:::fb
     end
 
-    subgraph OfflineCache["?? Offline Cache & Storage"]
+    subgraph OfflineCache["Offline Cache & Storage"]
         TileCache["Cached Map Tiles (CachedTileProvider)"]:::map
         Preferences["Local User Credentials"]:::flutter
     end
@@ -74,11 +74,11 @@ flowchart TD
 
 ---
 
-## ?? Core Mobile Screens & Workflow
+## Core Mobile Screens & Workflow
 
 ```
 +--------------------------------------------------------------------------------------------+
-¦  ??? LIVE BUS RADAR MAP       ¦  ??? DIGITAL QR BOARDING      ¦  ?? STUDENT PROFILE          ¦
+¦  LIVE BUS RADAR MAP       ¦  DIGITAL QR BOARDING      ¦  STUDENT PROFILE          ¦
 +------------------------------+------------------------------+------------------------------¦
 ¦ • Real-Time Bus Coordinate   ¦ • Instant QR Pass Scanner    ¦ • Route & Assigned Bus ID    ¦
 ¦ • Custom 3D Glowing Marker   ¦ • Automated Attendance Log   ¦ • Emergency Campus SOS       ¦
@@ -89,12 +89,12 @@ flowchart TD
 
 ---
 
-## ?? Key Capabilities & Innovation
+## Key Capabilities & Innovation
 
 <table>
   <tr>
     <td width="50%" valign="top">
-      <h3>??? Live Sub-Second GPS Radar</h3>
+      <h3>Live Sub-Second GPS Radar</h3>
       <ul>
         <li><b>Glowing Vector Bus Marker:</b> Dynamic heading rotation and smooth coordinate interpolation without jumping.</li>
         <li><b>Speed & Signal Health:</b> Real-time indicators showing vehicle speed, route delay, and connectivity state.</li>
@@ -102,7 +102,7 @@ flowchart TD
       </ul>
     </td>
     <td width="50%" valign="top">
-      <h3>??? Digital QR Boarding Pass</h3>
+      <h3>Digital QR Boarding Pass</h3>
       <ul>
         <li><b>Instant Camera Scanning:</b> High-speed scanning using <code>mobile_scanner</code> hardware bridge.</li>
         <li><b>Live Attendance Sync:</b> Confirms student boarding timestamp directly to Cloud Firestore.</li>
@@ -112,7 +112,7 @@ flowchart TD
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <h3>?? Offline Tile Caching</h3>
+      <h3>Offline Tile Caching</h3>
       <ul>
         <li><b>Zero Signal Dropouts:</b> Custom <code>CachedTileProvider</code> caches route map tiles locally.</li>
         <li><b>Low Data Consumption:</b> Reduces mobile cellular data usage by up to 80%.</li>
@@ -120,7 +120,7 @@ flowchart TD
       </ul>
     </td>
     <td width="50%" valign="top">
-      <h3>?? Safety & Delay Alerts</h3>
+      <h3>Safety & Delay Alerts</h3>
       <ul>
         <li><b>Stop Proximity Alerts:</b> Push notifications when the bus is 2 stops away.</li>
         <li><b>Emergency Broadcasts:</b> Campus delay or route detour notifications.</li>
@@ -132,7 +132,7 @@ flowchart TD
 
 ---
 
-## ?? Quick Start Guide
+## Quick Start Guide
 
 ### Prerequisites
 * **Flutter SDK** `v3.19+` & **Dart** `v3.3+`
@@ -153,28 +153,28 @@ flutter run
 
 ---
 
-## ?? Repository Structure
+## Repository Structure
 
 ```
 SIST-BUS-project-student-app/
-+-- android/                    # ?? Native Android Gradle & Manifest configurations
-+-- ios/                        # ?? Native iOS Runner & Info.plist
++-- android/                    # Native Android Gradle & Manifest configurations
++-- ios/                        # Native iOS Runner & Info.plist
 +-- lib/
 ¦   +-- config/
-¦   ¦   +-- gps_config.dart     # ?? Telemetry endpoint configuration & defaults
+¦   ¦   +-- gps_config.dart     # Telemetry endpoint configuration & defaults
 ¦   +-- screens/
-¦   ¦   +-- home_screen.dart    # ??? Live Bus Radar Map & stop markers
-¦   ¦   +-- login_screen.dart   # ?? Student & Parent authentication
-¦   ¦   +-- profile_screen.dart # ?? Student profile & active pass details
-¦   ¦   +-- qr_scanner_screen.dart # ??? Camera QR boarding pass scanner
-¦   ¦   +-- splash_screen.dart  # ?? Animated branded launch screen
+¦   ¦   +-- home_screen.dart    # Live Bus Radar Map & stop markers
+¦   ¦   +-- login_screen.dart   # Student & Parent authentication
+¦   ¦   +-- profile_screen.dart # Student profile & active pass details
+¦   ¦   +-- qr_scanner_screen.dart # Camera QR boarding pass scanner
+¦   ¦   +-- splash_screen.dart  # Animated branded launch screen
 ¦   +-- services/
-¦   ¦   +-- gps_tracker_service.dart # ??? Firebase Realtime DB GPS stream listener
+¦   ¦   +-- gps_tracker_service.dart # Firebase Realtime DB GPS stream listener
 ¦   +-- widgets/
-¦   ¦   +-- cached_tile_provider.dart # ?? Offline map tile caching engine
+¦   ¦   +-- cached_tile_provider.dart # Offline map tile caching engine
 ¦   ¦   +-- glowing_bus_marker.dart   # ? Dynamic glowing vector bus icon
-¦   +-- main.dart               # ?? Flutter app entry point & Firebase init
-+-- pubspec.yaml                # ?? Flutter dependencies & asset declarations
+¦   +-- main.dart               # Flutter app entry point & Firebase init
++-- pubspec.yaml                # Flutter dependencies & asset declarations
 +-- README.md
 ```
 
