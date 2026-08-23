@@ -1,7 +1,7 @@
 ﻿<div align="center">
 
 <!-- HERO BANNER -->
-<img src="./assets/seamless_thin_snow.gif" width="100%" alt="Seamless Thin Snowfall" />
+<img src="./assets/snowcap_aesthetic_snow.gif" width="100%" alt="Aesthetic Snowcap Snowfall" />
 
 <br/>
 
