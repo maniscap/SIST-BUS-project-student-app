@@ -136,7 +136,7 @@ flowchart TD
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/maniscap/SIST-BUS-project-student-app.git
+git clone https://github.com/Tharun8994/SIST-BUS-project-student-app.git
 cd SIST-BUS-project-student-app
 
 # 2. Fetch Flutter packages
