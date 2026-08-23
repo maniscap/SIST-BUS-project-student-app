@@ -1,7 +1,7 @@
 ﻿<div align="center">
 
 <!-- HERO BANNER -->
-<img src="./assets/sistcap_student_snowfall.gif" width="100%" alt="SISTCAP Student Banner" />
+<img src="./assets/winter_atmosphere_snowfall.gif" width="100%" alt="Winter Atmosphere Snowfall" />
 
 <br/>
 
