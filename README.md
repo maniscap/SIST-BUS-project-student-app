@@ -31,14 +31,12 @@
 
 </div>
 
-## Overview
-
+## 📡 Overview
 **SISTCAP Student Bus App** is a cross-platform Flutter mobile application designed for students and parents. It bridges the gap between campus transport fleets and commuters by providing **real-time sub-second bus GPS radar tracking**, **dynamic glowing vehicle heading markers**, **digital QR boarding passes**, and **offline map tile caching**.
 
 ---
 
-## Mobile System Architecture
-
+## 🏗️ Mobile System Architecture
 ```mermaid
 flowchart TD
     classDef flutter fill:#0f172a,stroke:#0284c7,stroke-width:2px,color:#fff;
@@ -46,22 +44,22 @@ flowchart TD
     classDef map fill:#042f2e,stroke:#10b981,stroke-width:2px,color:#fff;
     classDef scan fill:#450a0a,stroke:#ef4444,stroke-width:2px,color:#fff;
 
-    subgraph Commuter["Student / Parent Mobile App (Flutter)"]
-        Splash["Animated Splash Screen"]:::flutter
-        Auth["Student & Parent Login"]:::flutter
-        LiveRadar["Live Bus Radar & Route Map"]:::map
+    subgraph Commuter["📱 Student / Parent Mobile App (Flutter)"]
+        Splash["🎬 Animated Splash Screen"]:::flutter
+        Auth["🔑 Student & Parent Login"]:::flutter
+        LiveRadar["🗺️ Live Bus Radar & Route Map"]:::map
         BusMarker["Dynamic 3D Glowing Bus Marker"]:::map
-        QRScanner["Digital QR Pass Scanner"]:::scan
-        Profile["Student Profile & Pass Details"]:::flutter
+        QRScanner["📷 Digital QR Pass Scanner"]:::scan
+        Profile["👤 Student Profile & Pass Details"]:::flutter
     end
 
-    subgraph FirebaseCloud["Cloud Backend Services"]
+    subgraph FirebaseCloud["☁️ Cloud Backend Services"]
         FirebaseAuth["Firebase Authentication"]:::fb
         Firestore["Cloud Firestore (Routes & Halts)"]:::fb
         RealtimeDB["Realtime GPS Telemetry Stream"]:::fb
     end
 
-    subgraph OfflineCache["Offline Cache & Storage"]
+    subgraph OfflineCache["💾 Offline Cache & Storage"]
         TileCache["Cached Map Tiles (CachedTileProvider)"]:::map
         Preferences["Local User Credentials"]:::flutter
     end
@@ -74,8 +72,7 @@ flowchart TD
 
 ---
 
-## Core Mobile Screens & Workflow
-
+## 📲 Core Mobile Screens & Workflow
 ```
 +--------------------------------------------------------------------------------------------+
 ¦  LIVE BUS RADAR MAP       ¦  DIGITAL QR BOARDING      ¦  STUDENT PROFILE          ¦
@@ -89,12 +86,11 @@ flowchart TD
 
 ---
 
-## Key Capabilities & Innovation
-
+## 🧩 Key Capabilities & Innovation
 <table>
   <tr>
     <td width="50%" valign="top">
-      <h3>Live Sub-Second GPS Radar</h3>
+      <h3>🗺️ Live Sub-Second GPS Radar</h3>
       <ul>
         <li><b>Glowing Vector Bus Marker:</b> Dynamic heading rotation and smooth coordinate interpolation without jumping.</li>
         <li><b>Speed & Signal Health:</b> Real-time indicators showing vehicle speed, route delay, and connectivity state.</li>
@@ -102,7 +98,7 @@ flowchart TD
       </ul>
     </td>
     <td width="50%" valign="top">
-      <h3>Digital QR Boarding Pass</h3>
+      <h3>📷 Digital QR Boarding Pass</h3>
       <ul>
         <li><b>Instant Camera Scanning:</b> High-speed scanning using <code>mobile_scanner</code> hardware bridge.</li>
         <li><b>Live Attendance Sync:</b> Confirms student boarding timestamp directly to Cloud Firestore.</li>
@@ -132,9 +128,8 @@ flowchart TD
 
 ---
 
-## Quick Start Guide
-
-### Prerequisites
+## 🚀 Quick Start Guide
+### ⚙️ Prerequisites
 * **Flutter SDK** `v3.19+` & **Dart** `v3.3+`
 * **Android Studio** / **VS Code** with Flutter extensions
 * **Physical Android / iOS device** or emulator
@@ -153,8 +148,7 @@ flutter run
 
 ---
 
-## Repository Structure
-
+## 📂 Repository Structure
 ```
 SIST-BUS-project-student-app/
 +-- android/                    # Native Android Gradle & Manifest configurations
