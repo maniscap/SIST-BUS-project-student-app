@@ -181,3 +181,13 @@ SIST-BUS-project-student-app/
 <sub>Engineered with precision for student transport safety. SISTCAP Engineering Suite &copy; 2026.</sub>
 
 </div>
+
+---
+
+<div align="center">
+  <img src="./assets/footer_pulse.gif" width="100%" alt="Footer Horizon Pulse" />
+  <br/>
+  <p align="center">
+    <sub>Engineered for seamless offline-first student commuter navigation. SISTCAP Mobile © 2026 Mani.</sub>
+  </p>
+</div>
