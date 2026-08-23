@@ -1,7 +1,7 @@
-<div align="center">
+ï»¿<div align="center">
 
 <!-- HERO BANNER -->
-
+<img src="./assets/sistcap_student_snowfall.gif" width="100%" alt="SISTCAP Student Banner" />
 
 <br/>
 
@@ -20,10 +20,10 @@
 <br/>
 
 <p align="center">
-  <a href="#-overview"><b>Overview</b></a> •
-  <a href="#-mobile-system-architecture"><b>Architecture</b></a> •
-  <a href="#-core-mobile-screens"><b>App Screens</b></a> •
-  <a href="#-key-features"><b>Features</b></a> •
+  <a href="#-overview"><b>Overview</b></a> â€¢
+  <a href="#-mobile-system-architecture"><b>Architecture</b></a> â€¢
+  <a href="#-core-mobile-screens"><b>App Screens</b></a> â€¢
+  <a href="#-key-features"><b>Features</b></a> â€¢
   <a href="#-quick-start"><b>Quick Start</b></a>
 </p>
 
@@ -78,12 +78,12 @@ flowchart TD
 
 ```
 +--------------------------------------------------------------------------------------------+
-¦  ??? LIVE BUS RADAR MAP       ¦  ??? DIGITAL QR BOARDING      ¦  ?? STUDENT PROFILE          ¦
-+------------------------------+------------------------------+------------------------------¦
-¦ • Real-Time Bus Coordinate   ¦ • Instant QR Pass Scanner    ¦ • Route & Assigned Bus ID    ¦
-¦ • Custom 3D Glowing Marker   ¦ • Automated Attendance Log   ¦ • Emergency Campus SOS       ¦
-¦ • ETA to Next Campus Stop    ¦ • Anti-Fraud Pass Token      ¦ • Parent Contact Link        ¦
-¦ • Offline Tile Caching       ¦ • Sound & Haptic Feedback    ¦ • Notification Preferences   ¦
+Â¦  ??? LIVE BUS RADAR MAP       Â¦  ??? DIGITAL QR BOARDING      Â¦  ?? STUDENT PROFILE          Â¦
++------------------------------+------------------------------+------------------------------Â¦
+Â¦ â€¢ Real-Time Bus Coordinate   Â¦ â€¢ Instant QR Pass Scanner    Â¦ â€¢ Route & Assigned Bus ID    Â¦
+Â¦ â€¢ Custom 3D Glowing Marker   Â¦ â€¢ Automated Attendance Log   Â¦ â€¢ Emergency Campus SOS       Â¦
+Â¦ â€¢ ETA to Next Campus Stop    Â¦ â€¢ Anti-Fraud Pass Token      Â¦ â€¢ Parent Contact Link        Â¦
+Â¦ â€¢ Offline Tile Caching       Â¦ â€¢ Sound & Haptic Feedback    Â¦ â€¢ Notification Preferences   Â¦
 +--------------------------------------------------------------------------------------------+
 ```
 
@@ -160,20 +160,20 @@ SIST-BUS-project-student-app/
 +-- android/                    # ?? Native Android Gradle & Manifest configurations
 +-- ios/                        # ?? Native iOS Runner & Info.plist
 +-- lib/
-¦   +-- config/
-¦   ¦   +-- gps_config.dart     # ?? Telemetry endpoint configuration & defaults
-¦   +-- screens/
-¦   ¦   +-- home_screen.dart    # ??? Live Bus Radar Map & stop markers
-¦   ¦   +-- login_screen.dart   # ?? Student & Parent authentication
-¦   ¦   +-- profile_screen.dart # ?? Student profile & active pass details
-¦   ¦   +-- qr_scanner_screen.dart # ??? Camera QR boarding pass scanner
-¦   ¦   +-- splash_screen.dart  # ?? Animated branded launch screen
-¦   +-- services/
-¦   ¦   +-- gps_tracker_service.dart # ??? Firebase Realtime DB GPS stream listener
-¦   +-- widgets/
-¦   ¦   +-- cached_tile_provider.dart # ?? Offline map tile caching engine
-¦   ¦   +-- glowing_bus_marker.dart   # ? Dynamic glowing vector bus icon
-¦   +-- main.dart               # ?? Flutter app entry point & Firebase init
+Â¦   +-- config/
+Â¦   Â¦   +-- gps_config.dart     # ?? Telemetry endpoint configuration & defaults
+Â¦   +-- screens/
+Â¦   Â¦   +-- home_screen.dart    # ??? Live Bus Radar Map & stop markers
+Â¦   Â¦   +-- login_screen.dart   # ?? Student & Parent authentication
+Â¦   Â¦   +-- profile_screen.dart # ?? Student profile & active pass details
+Â¦   Â¦   +-- qr_scanner_screen.dart # ??? Camera QR boarding pass scanner
+Â¦   Â¦   +-- splash_screen.dart  # ?? Animated branded launch screen
+Â¦   +-- services/
+Â¦   Â¦   +-- gps_tracker_service.dart # ??? Firebase Realtime DB GPS stream listener
+Â¦   +-- widgets/
+Â¦   Â¦   +-- cached_tile_provider.dart # ?? Offline map tile caching engine
+Â¦   Â¦   +-- glowing_bus_marker.dart   # ? Dynamic glowing vector bus icon
+Â¦   +-- main.dart               # ?? Flutter app entry point & Firebase init
 +-- pubspec.yaml                # ?? Flutter dependencies & asset declarations
 +-- README.md
 ```
