@@ -185,7 +185,7 @@ SIST-BUS-project-student-app/
 ---
 
 <div align="center">
-  <img src="./assets/footer_pulse.gif" width="100%" alt="Footer Horizon Pulse" />
+  <img src="./assets/footer_aurora_clean.gif" width="100%" alt="Aesthetic Horizon Aurora" />
   <br/>
   <p align="center">
     <sub>Engineered for seamless offline-first student commuter navigation. SISTCAP Mobile © 2026 Mani.</sub>
